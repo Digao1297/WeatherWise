@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,24 +21,31 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ComponentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherwise.data.model.WeatherInfo
 import com.example.weatherwise.ui.theme.BlueSky
 import com.example.weatherwise.ui.theme.WeatherWiseTheme
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun WeatherWiseRoute(
-    viewModel: WeatherWiseViewModel = viewModel()
+    viewModel: WeatherWiseViewModel = viewModel(),
+    activity: ComponentActivity,
 ) {
     val weatherInfoState by viewModel.weatherInfoState.collectAsStateWithLifecycle()
-    WeatherWiseScreen(weatherInfo = weatherInfoState.weatherInfo)
+
+    RequestPermission(activity = activity, onGo = {
+        WeatherWiseScreen(weatherInfo = weatherInfoState.weatherInfo, padding = it)
+    })
+
 }
 
 @Composable
 fun WeatherWiseScreen(
     context: Context = LocalContext.current,
     weatherInfo: WeatherInfo?,
+    padding: PaddingValues,
 ) {
     weatherInfo?.let {
         val iconDrawable: Int = context.resources.getIdentifier(
@@ -47,6 +56,7 @@ fun WeatherWiseScreen(
 
         Surface(
             modifier = Modifier
+                .padding(padding)
                 .fillMaxSize(),
             color = if (weatherInfo.isDay) {
                 BlueSky
@@ -112,7 +122,8 @@ fun WeatherWisePreview() {
                 temperature = 32,
                 dayOfWeek = "Saturday",
                 isDay = true,
-            )
+            ),
+            padding = PaddingValues()
         )
     }
 }
